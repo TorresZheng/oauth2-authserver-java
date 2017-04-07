@@ -34,7 +34,6 @@ public class CustomAuthenticationProvider implements AuthenticationProvider{
 
     @Override
     public boolean supports(Class<?> authentication) {
-//        return false;
         return authentication.equals(UsernamePasswordAuthenticationToken.class);
     }
 }
