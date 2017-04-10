@@ -3,18 +3,23 @@ package sddtc.oauth2.authserver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
+import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenStore;
+import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
 import sddtc.oauth2.authserver.config.CustomUserDetailsService;
 
-import javax.annotation.Resource;
+import javax.sql.DataSource;
 
 /**
  * Created by hchang on 2017/4/8.
@@ -23,8 +28,6 @@ import javax.annotation.Resource;
 @EnableAuthorizationServer
 @ComponentScan(basePackages = {"sddtc.oauth2.authserver"})
 public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdapter {
-    @Autowired
-    private TokenStore tokenStore;
     @Autowired
     private CustomUserDetailsService userDetailsService;
     @Autowired
@@ -38,7 +41,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
         endpoints
                 .authenticationManager(authenticationManager)
                 .userDetailsService(userDetailsService)
-                .tokenStore(tokenStore);
+                .tokenStore(tokenStore());
     }
 
     @Override
@@ -52,5 +55,29 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
                 .authorizedGrantTypes(grantTypes)
                 .scopes(scrops)
                 .accessTokenValiditySeconds(Integer.parseInt(env.getProperty("client.access-token-validity-seconds")));
+    }
+
+    /**
+     * if token in memory: return new InMemoryTokenStore();
+     * @return
+     */
+    @Bean
+    public TokenStore tokenStore() {
+        DataSource tokenDataSource = DataSourceBuilder.create()
+                .driverClassName(env.getProperty("spring.datasource.driver-class-name"))
+                .username(env.getProperty("spring.datasource.username"))
+                .password(env.getProperty("spring.datasource.password"))
+                .url(env.getProperty("spring.datasource.url"))
+                .build();
+        return new JdbcTokenStore(tokenDataSource);
+    }
+
+    @Bean
+    @Primary
+    public DefaultTokenServices tokenServices() {
+        DefaultTokenServices defaultTokenServices = new DefaultTokenServices();
+        defaultTokenServices.setTokenStore(tokenStore());
+        defaultTokenServices.setSupportRefreshToken(true);
+        return defaultTokenServices;
     }
 }
