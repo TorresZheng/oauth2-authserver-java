@@ -8,9 +8,8 @@
 1. Install Docker On macOS: [docker-for-mac](https://docs.docker.com/docker-for-mac/install/)
 2. `git clone git@github.com:universe-white-chief/oauth2-authserver-java.git`
 3. `cd` project root path  
-    3.1 如果你本地有`gradle-3.4.1-bin.zip`压缩包, 则在该项目运行时不需要另外下载.   
-    请将`gradle-3.4.1-bin.zip`拷贝到`oauth2-authserver-java/gradle/wrapper/`目录下  
-    并且修改`gradle-wrapper.properties`文件的`distributionUrl=https\://services.gradle.org/distributions/gradle-3.4.1-bin.zip`为`distributionUrl=gradle-3.4.1-bin.zip`  
+  3.1. 如果你本地有`gradle-3.4.1-bin.zip`压缩包, 则在该项目运行时不需要另外下载. 请将`gradle-3.4.1-bin.zip`拷贝到`oauth2-authserver-java/gradle/wrapper/`目录下   
+  3.2. 修改`gradle-wrapper.properties`文件的`distributionUrl=https\://services.gradle.org/distributions/gradle-3.4.1-bin.zip`为`distributionUrl=gradle-3.4.1-bin.zip`  
 4. run as Detached mode on local env: `docker-compose up -d`
 
 ## Usage
